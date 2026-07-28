@@ -6,8 +6,7 @@ import random
 
 agentName = "Agent A"
 
-def has_left_right_connection(cells, B): # I borrowed your connection checking code
-
+def has_top_bottom_connection(cells, B): # I borrowed your connection checking code
    cells = set(cells)
    paths = []
 
@@ -33,10 +32,9 @@ def has_left_right_connection(cells, B): # I borrowed your connection checking c
 
    return False
 
-def has_top_bottom_connection(cells, N):
+def has_left_right_connection(cells, N):
    cells = [(b, a) for (a, b) in cells]
-   return has_left_right_connection(cells, N)
-
+   return has_top_bottom_connection(cells, N)
 
 
 def minimax(mine, opp, B):
@@ -52,14 +50,13 @@ def minimax(mine, opp, B):
          board.add((x,y))
 
    def search(mine, opp, my_turn): # Recursive min max search
-      state = (frozenset(mine), frozenset(opp), my_turn)
-
+      state = (frozenset(mine), frozenset(opp), my_turn) # Set State search for O(1)
       if state in cache:
          return cache[state]
       
-      if has_left_right_connection(mine, B):
+      if has_top_bottom_connection(mine, B): # Base Cases
          return 1
-      if has_top_bottom_connection(opp, B):
+      if has_left_right_connection(opp, B):
          return -1
       
       empty = board - mine - opp
@@ -83,7 +80,7 @@ def minimax(mine, opp, B):
       cache[state] = score
       return score
 
-   
+
    empty = board - mine - opp
    for move in empty:
       score = search(mine | {move}, opp, False)
