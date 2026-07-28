@@ -44,12 +44,14 @@ def minimax(mine, opp, B):
    cache = {}
    best_move = None
    best_score = -float("inf")
+   alpha = -float("inf")
+   beta = float("inf")
    
    for x in range(B): # Initalize board
       for y in range(B):
          board.add((x,y))
 
-   def search(mine, opp, my_turn): # Recursive min max search
+   def search(mine, opp, my_turn, alpha, beta): # Recursive min max search
       state = (frozenset(mine), frozenset(opp), my_turn) # Set State search for O(1)
       if state in cache:
          return cache[state]
@@ -58,37 +60,51 @@ def minimax(mine, opp, B):
          return 1
       if has_left_right_connection(opp, B):
          return -1
-      
+
+      fully_searched = True
       empty = board - mine - opp
 
       if my_turn:
          score = -float("inf")
          for move in empty:
             new_mine = mine | {move}
-            result = search(new_mine, opp, False)
+            result = search(new_mine, opp, False, alpha, beta)
             score = max(score, result)
+            alpha = max(alpha, score)
             if score == 1:
+               fully_searched = True
+               break
+            if alpha >= beta:
+               fully_searched = False
                break
          
       else:
          score = float("inf")
          for move in empty:
             new_opp = opp | {move}
-            result = search(mine, new_opp, True)
+            result = search(mine, new_opp, True, alpha, beta)
             score = min(score, result)
+            beta = min(beta, score)
             if score == -1:
+               fully_searched = True
+               break
+            if alpha >= beta:
+               fully_searched = False
                break
 
-      cache[state] = score # Update cache
+      if fully_searched:
+         cache[state] = score # Update cache if whole state is present
       return score
 
 
    empty = board - mine - opp
    for move in empty:
-      score = search(mine | {move}, opp, False)
+      score = search(mine | {move}, opp, False, alpha, beta)
       if score > best_score:
          best_score = score
          best_move = move
+
+      alpha = max(alpha, best_score)
 
    return best_move
 
