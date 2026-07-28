@@ -7,11 +7,11 @@ __email__ = "lech.szymanski@otago.ac.nz"
 game_settings = {
 
    # agent files that play the game
-   "players": ("my_agent.py", "random_agent.py"), 
+   "players": ("my_agentA.py", "random_agent.py"), 
 
    "B": 4,                      # board size is BxB
    
-   "totalNumberOfGames": 1,   # total number of games played
+   "totalNumberOfGames": 100,   # total number of games played
 
    "verboseLevel": 2,           # level of verbosity:
                                 # 0 - no output, 

@@ -37,6 +37,62 @@ def has_top_bottom_connection(cells, N):
    cells = [(b, a) for (a, b) in cells]
    return has_left_right_connection(cells, N)
 
+
+
+def minimax(mine, opp, B):
+   mine = set(mine)
+   opp = set(opp)
+   board = set()
+   cache = {}
+   best_move = None
+   best_score = -69
+   
+   for x in range(B): # Initalize board
+      for y in range(B):
+         board.add((x,y))
+
+   def search(mine, opp, my_turn): # Recursive min max search
+      state = (frozenset(mine), frozenset(opp), my_turn)
+
+      if state in cache:
+         return cache[state]
+      
+      if has_left_right_connection(mine, B):
+         return 1
+      if has_top_bottom_connection(opp, B):
+         return -1
+      
+      empty = board - mine - opp
+
+      if my_turn:
+         scores = []
+         for move in empty:
+            new_mine = mine | {move}
+            result = search(new_mine, opp, False)
+            scores.append(result)
+         score = max(scores)
+
+      else:
+         scores = []
+         for move in empty:
+            new_opp = opp | {move}
+            result = search(mine, new_opp, True)
+            scores.append(result)
+         score = min(scores)
+
+      cache[state] = score
+      return score
+
+   
+   empty = board - mine - opp
+   for move in empty:
+      score = search(mine | {move}, opp, False)
+      if score > best_score:
+         best_score = score
+         best_move = move
+
+   return best_move
+
 class HexAgent():
    """
    A class that encapsulates the code dictating the
@@ -78,10 +134,7 @@ class HexAgent():
       oppHexes = percepts[1]
       
       # Make a random choice of the card to bid with
-      while True:
-         hex = (random.randint(0,self.B-1), random.randint(0,self.B-1))
-         if hex not in myHexes and hex not in oppHexes:
-            break
-
-      return hex
+      move = minimax(myHexes, oppHexes, self.B)
+      print(move)
+      return move
       

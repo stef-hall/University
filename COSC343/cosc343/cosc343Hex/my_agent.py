@@ -47,6 +47,8 @@ class HexAgent():
       oppHexes = percepts[1]
       
       # Make a random choice of the card to bid with
+      print(myHexes)
+      print(oppHexes)
       while True:
          hex = (random.randint(0,self.B-1), random.randint(0,self.B-1))
          if hex not in myHexes and hex not in oppHexes:
