@@ -37,6 +37,27 @@ def has_left_right_connection(cells, N):
    return has_top_bottom_connection(cells, N)
 
 
+def has_left_right_connection(cells, N):
+   occupied = cells if isinstance(cells, (set, frozenset)) else frozenset(cells)
+   neighbours = board_neighbours(N)
+
+   frontier = [cell for cell in occupied if cell[0] == 0]
+   visited = set(frontier)
+
+   while frontier:
+      cell = frontier.pop()
+
+      if cell[0] == N - 1:
+         return True
+
+      for neighbour in neighbours[cell]:
+         if neighbour in occupied and neighbour not in visited:
+            visited.add(neighbour)
+            frontier.append(neighbour)
+
+   return False
+
+
 class HexAgent():
    """
    A class that encapsulates the code dictating the
@@ -66,7 +87,7 @@ class HexAgent():
       """
       self.B = B
       self.cache = {}
-      self.cross_game_cache = 0 # 1=On, 0=Off
+      self.cross_game_cache = 1 # 1=On, 0=Off
 
       self.board = set()
       for x in range(B): # Initalize board
@@ -82,8 +103,6 @@ class HexAgent():
       best_score = -float("inf")
       alpha = -float("inf")
       beta = float("inf")
-      if self.cross_game_cache == 0:
-         self.cache = {}
       
 
       def search(mine, opp, my_turn, alpha, beta): # Recursive min max search
@@ -160,6 +179,12 @@ class HexAgent():
       # Extract different parts of percepts.
       myHexes = percepts[0]
       oppHexes = percepts[1]
+
+      # Per game cache reset, determined by
+      if self.cross_game_cache == 0:
+         if len(myHexes) == 0:
+            self.cache = {}
+
       
       # Make a minimax optimized move
       move = self.minimax(myHexes, oppHexes, self.B)
