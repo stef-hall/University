@@ -156,7 +156,7 @@ class HexGame:
       if tournament:
          self.throwError = self.errorAndReturn
       else:
-         self.throwError = self.errorAndExit
+         self.throwError = self.errorAndExit 
 
       if self.verbose:
          print("Hex game settings:")

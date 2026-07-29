@@ -7,9 +7,9 @@ __email__ = "lech.szymanski@otago.ac.nz"
 game_settings = {
 
    # agent files that play the game
-   "players": ("my_agentB.py", "random_agent.py"), 
+   "players": ("my_agentC2.py", "my_agentC3P0.py"), 
 
-   "B": 4,                      # board size is BxB
+   "B": 5,                      # board size is BxB
    
    "totalNumberOfGames": 100,   # total number of games played
 

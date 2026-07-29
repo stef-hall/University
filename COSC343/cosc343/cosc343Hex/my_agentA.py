@@ -50,7 +50,7 @@ def minimax(mine, opp, B):
          board.add((x,y))
 
    def search(mine, opp, my_turn): # Recursive min max search
-      state = (frozenset(mine), frozenset(opp), my_turn) # Set State search for O(1)
+      state = (frozenset(mine), frozenset(opp), my_turn) # Set State search for O(1), This is my secret sauce
       if state in cache:
          return cache[state]
       
