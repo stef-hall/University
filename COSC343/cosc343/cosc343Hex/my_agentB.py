@@ -37,77 +37,6 @@ def has_left_right_connection(cells, N):
    return has_top_bottom_connection(cells, N)
 
 
-def minimax(mine, opp, B):
-   mine = set(mine)
-   opp = set(opp)
-   board = set()
-   cache = {}
-   best_move = None
-   best_score = -float("inf")
-   alpha = -float("inf")
-   beta = float("inf")
-   
-   for x in range(B): # Initalize board
-      for y in range(B):
-         board.add((x,y))
-
-   def search(mine, opp, my_turn, alpha, beta): # Recursive min max search
-      state = (frozenset(mine), frozenset(opp), my_turn) # Set State search for O(1)
-      if state in cache:
-         return cache[state]
-      
-      if has_top_bottom_connection(mine, B): # Base Cases
-         return 1
-      if has_left_right_connection(opp, B):
-         return -1
-
-      fully_searched = True
-      empty = board - mine - opp
-
-      if my_turn:
-         score = -float("inf")
-         for move in empty:
-            new_mine = mine | {move}
-            result = search(new_mine, opp, False, alpha, beta)
-            score = max(score, result)
-            alpha = max(alpha, score)
-            if score == 1:
-               fully_searched = True
-               break
-            if alpha >= beta:
-               fully_searched = False
-               break
-         
-      else:
-         score = float("inf")
-         for move in empty:
-            new_opp = opp | {move}
-            result = search(mine, new_opp, True, alpha, beta)
-            score = min(score, result)
-            beta = min(beta, score)
-            if score == -1:
-               fully_searched = True
-               break
-            if alpha >= beta:
-               fully_searched = False
-               break
-
-      if fully_searched:
-         cache[state] = score # Update cache if whole state is present
-      return score
-
-
-   empty = board - mine - opp
-   for move in empty:
-      score = search(mine | {move}, opp, False, alpha, beta)
-      if score > best_score:
-         best_score = score
-         best_move = move
-
-      alpha = max(alpha, best_score)
-
-   return best_move
-
 class HexAgent():
    """
    A class that encapsulates the code dictating the
@@ -118,6 +47,7 @@ class HexAgent():
    Attributes
    ----------
    B : board size
+   Cross_Game_Cache : Persistent Cache
 
    Methods
    -------
@@ -128,9 +58,92 @@ class HexAgent():
    def __init__(self, B):
       """
       :B: board size (BxB). 
- 
+
+      :cross_game_cache: This determines whether or not the cache is stored per agent instance,
+      or per game. As the code plays all games on a single agent instant, persistent cache is an
+      enourmous upgrade, but it means knowledge from one game helps another. 
+      For a fair per-game test you can turn this off.
       """
       self.B = B
+      self.cache = {}
+      self.cross_game_cache = 0 # 1=On, 0=Off
+
+      self.board = set()
+      for x in range(B): # Initalize board
+         for y in range(B):
+            self.board.add((x,y))
+
+
+   def minimax(self, mine, opp, B):
+      mine = set(mine)
+      opp = set(opp)
+      board = self.board
+      best_move = None
+      best_score = -float("inf")
+      alpha = -float("inf")
+      beta = float("inf")
+      if self.cross_game_cache == 0:
+         self.cache = {}
+      
+
+      def search(mine, opp, my_turn, alpha, beta): # Recursive min max search
+         state = (frozenset(mine), frozenset(opp), my_turn) # Set State search for O(1)
+         if state in self.cache:
+            return self.cache[state]
+         
+         if has_top_bottom_connection(mine, B): # Base Cases
+            return 1
+         if has_left_right_connection(opp, B):
+            return -1
+
+         fully_searched = True
+         empty = board - mine - opp
+
+         if my_turn:
+            score = -float("inf")
+            for move in empty:
+               new_mine = mine | {move}
+               result = search(new_mine, opp, False, alpha, beta)
+               score = max(score, result)
+               alpha = max(alpha, score)
+               if score == 1:
+                  fully_searched = True
+                  break
+               if alpha >= beta:
+                  fully_searched = False
+                  break
+            
+         else:
+            score = float("inf")
+            for move in empty:
+               new_opp = opp | {move}
+               result = search(mine, new_opp, True, alpha, beta)
+               score = min(score, result)
+               beta = min(beta, score)
+               if score == -1:
+                  fully_searched = True
+                  break
+               if alpha >= beta:
+                  fully_searched = False
+                  break
+
+         if fully_searched:
+            self.cache[state] = score # Update cache if whole state is present
+         return score
+
+
+      empty = board - mine - opp
+      for move in empty:
+         score = search(mine | {move}, opp, False, alpha, beta)
+         if score > best_score:
+            best_score = score
+            best_move = move
+
+         alpha = max(alpha, best_score)
+         if best_score == 1:
+            break
+
+      return best_move
 
    def AgentFunction(self, percepts):
       """Returns the hex coordinates where to place the piece
@@ -149,6 +162,6 @@ class HexAgent():
       oppHexes = percepts[1]
       
       # Make a minimax optimized move
-      move = minimax(myHexes, oppHexes, self.B)
+      move = self.minimax(myHexes, oppHexes, self.B)
       return move
       
