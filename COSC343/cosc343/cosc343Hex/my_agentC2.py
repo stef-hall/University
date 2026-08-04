@@ -37,6 +37,8 @@ def has_left_right_connection(cells, N):
    cells = [(b, a) for (a, b) in cells]
    return has_top_bottom_connection(cells, N)
 
+def rotate_board(cells):
+    return {(y, x) for x, y in cells}
 
 def heuristic(mine, opp, empty, B):
     rules = [ (0,-1),(-1,0),(-1,1),(1,0),(0,1),(1,-1)]
@@ -162,7 +164,7 @@ class HexAgent():
             return -1
          if depth >= self.D:
             m = heuristic(mine,opp,empty,B)
-            o = heuristic(opp,mine,empty,B)
+            o = heuristic(rotate_board(opp),rotate_board(mine),rotate_board(empty),B)
             score = 0.99 * ((o-m) / (B * B))
             return score
 

@@ -38,8 +38,62 @@ def has_left_right_connection(cells, N):
    return has_top_bottom_connection(cells, N)
 
 
-def heuristic(mine, opp, B):
-   return 0
+def heuristic(mine, opp, empty, B):
+    rules = [ (0,-1),(-1,0),(-1,1),(1,0),(0,1),(1,-1)]
+    distance = {}
+    open_hexes = []
+
+    def neighbours_of(current_hex):
+        neighbours = {}
+        for direction in rules:
+            new_x = current_hex[0] + direction[0]
+            new_y = current_hex[1] + direction[1]
+            neighbour = (new_x, new_y)
+            if neighbour in mine:
+                score = 0
+            elif neighbour in empty:
+                score = 1
+            else:
+                continue
+
+            neighbours[neighbour] = score
+
+        return neighbours
+
+    def cheapest(open_hexes, distance):
+        cheapest_hex = open_hexes[0]
+        for hexagon in open_hexes:
+            if distance[hexagon] < distance[cheapest_hex]:
+                cheapest_hex = hexagon
+
+        return cheapest_hex
+
+    #Main Djikstras Algorthim
+    for i in range(B):
+        start_row = (i, 0)
+        if start_row in mine:
+            distance[start_row] = 0
+            open_hexes.append(start_row)
+
+        elif start_row in empty:
+            distance[start_row] = 1
+            open_hexes.append(start_row)
+
+    while open_hexes:
+        current = cheapest(open_hexes, distance)
+        open_hexes.remove(current)
+        if current[1] == B-1: #Reached the Oppossing wall
+            return distance[current]
+
+        neighbour_costs = neighbours_of(current)
+        for neighbour in neighbour_costs:
+            new_distance = distance[current] + neighbour_costs[neighbour]
+            if neighbour not in distance or new_distance < distance[neighbour]:
+                distance[neighbour] = new_distance
+                if neighbour not in open_hexes:
+                    open_hexes.append(neighbour)
+
+    return float("inf")
 
 
 class HexAgent():
@@ -98,16 +152,19 @@ class HexAgent():
          state = (frozenset(mine), frozenset(opp), my_turn, depth) # Set State search for O(1)
          if state in self.cache:
             return self.cache[state]
+
+         fully_searched = True
+         empty = board - mine - opp
          
          if has_top_bottom_connection(mine, B): # Base Cases
             return 1
          if has_left_right_connection(opp, B):
             return -1
          if depth >= self.D:
-            return heuristic(mine, opp, B)
-
-         fully_searched = True
-         empty = board - mine - opp
+            m = heuristic(mine,opp,empty,B)
+            o = heuristic(opp,mine,empty,B)
+            score = 0.99 * ((o-m) / (B * B))
+            return score
 
          if my_turn:
             score = -float("inf")
