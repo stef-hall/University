@@ -38,6 +38,10 @@ def has_left_right_connection(cells, N):
    return has_top_bottom_connection(cells, N)
 
 
+def heuristic(mine, opp, B):
+   return 0
+
+
 class HexAgent():
    """
    A class that encapsulates the code dictating the
@@ -79,32 +83,6 @@ class HexAgent():
             self.board.add((x,y))
 
 
-   def sort(self, empty, mine, opp):
-      mine_adjacent = set()
-      opp_adjacent = set()
-
-      rules = [(0, -1), (-1, 0), (-1, 1), (1, 0), (0, 1), (1, -1)]
-
-      for cell in empty:
-         x, y = cell
-
-         for xd, yd in rules:
-            neighbour = (x + xd, y + yd)
-
-            if neighbour in mine:
-               mine_adjacent.add(cell)
-
-            if neighbour in opp:
-               opp_adjacent.add(cell)
-
-      remainder = empty - mine_adjacent - opp_adjacent
-
-      return (
-         list(mine_adjacent)
-         + list(opp_adjacent - mine_adjacent)
-         + list(remainder)
-      )
-
 
    def minimax(self, mine, opp, B):
       mine = set(mine)
@@ -125,16 +103,14 @@ class HexAgent():
             return 1
          if has_left_right_connection(opp, B):
             return -1
-         
          if depth >= self.D:
-            return 0
+            return heuristic(mine, opp, B)
 
          fully_searched = True
          empty = board - mine - opp
 
          if my_turn:
             score = -float("inf")
-            empty = self.sort(empty, mine, opp)
             for move in empty:
                new_mine = mine | {move}
                result = search(new_mine, opp, False, alpha, beta, depth + 1)
@@ -149,7 +125,6 @@ class HexAgent():
             
          else:
             score = float("inf")
-            empty = self.sort(empty, mine, opp)
             for move in empty:
                new_opp = opp | {move}
                result = search(mine, new_opp, True, alpha, beta, depth + 1)
@@ -166,9 +141,7 @@ class HexAgent():
             self.cache[state] = score # Update cache if whole state is present
          return score
 
-
       empty = board - mine - opp
-      empty = self.sort(empty, mine, opp)
       for move in empty:
          score = search(mine | {move}, opp, False, alpha, beta, 0)
          if score > best_score:

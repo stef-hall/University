@@ -38,45 +38,62 @@ def has_left_right_connection(cells, N):
    return has_top_bottom_connection(cells, N)
 
 
-def connection_progress(hexes, B):
-   hexes = set(hexes)
-   rules = [(0, -1), (-1, 0), (-1, 1), (1, 0), (0, 1), (1, -1)]
-   best_progress = 0
+def heuristic(mine, opp, empty, B):
+    rules = [ (0,-1),(-1,0),(-1,1),(1,0),(0,1),(1,-1)]
+    distance = {}
+    open_hexes = []
 
-   while len(hexes) > 0:
-      current = hexes.pop()
-      group = [current]
-      lowest_y = current[1]
-      highest_y = current[1]
+    def neighbours_of(current_hex):
+        neighbours = {}
+        for direction in rules:
+            new_x = current_hex[0] + direction[0]
+            new_y = current_hex[1] + direction[1]
+            neighbour = (new_x, new_y)
+            if neighbour in mine:
+                score = 0
+            elif neighbour in empty:
+                score = 1
+            else:
+                continue
 
-      i = 0
-      while i < len(group):
-         x, y = group[i]
+            neighbours[neighbour] = score
 
-         if y < lowest_y:
-            lowest_y = y
+        return neighbours
 
-         if y > highest_y:
-            highest_y = y
+    def cheapest(open_hexes, distance):
+        cheapest_hex = open_hexes[0]
+        for hexagon in open_hexes:
+            if distance[hexagon] < distance[cheapest_hex]:
+                cheapest_hex = hexagon
 
-         for xd, yd in rules:
-            neighbour = (x + xd, y + yd)
+        return cheapest_hex
 
-            if neighbour in hexes:
-               group.append(neighbour)
-               hexes.remove(neighbour)
+    #Main Djikstras Algorthim
+    for i in range(B):
+        start_row = (i, 0)
+        if start_row in mine:
+            distance[start_row] = 0
+            open_hexes.append(start_row)
 
-         i += 1
+        elif start_row in empty:
+            distance[start_row] = 1
+            open_hexes.append(start_row)
 
-      rows_connected = highest_y - lowest_y + 1
+    while open_hexes:
+        current = cheapest(open_hexes, distance)
+        open_hexes.remove(current)
+        if current[1] == B-1: #Reached the Oppossing wall
+            return distance[current]
 
-      if rows_connected > 1:
-         progress = rows_connected / B
+        neighbour_costs = neighbours_of(current)
+        for neighbour in neighbour_costs:
+            new_distance = distance[current] + neighbour_costs[neighbour]
+            if neighbour not in distance or new_distance < distance[neighbour]:
+                distance[neighbour] = new_distance
+                if neighbour not in open_hexes:
+                    open_hexes.append(neighbour)
 
-         if progress > best_progress:
-            best_progress = progress
-
-   return best_progress
+    return float("inf")
 
 
 class HexAgent():
@@ -110,7 +127,7 @@ class HexAgent():
       
       """
       self.B = B
-      self.D = 5 
+      self.D = 4 
       self.cache = {}
       self.board = set()
       self.cross_game_cache = 1 # 1=On, 0=Off
@@ -119,32 +136,6 @@ class HexAgent():
          for y in range(B):
             self.board.add((x,y))
 
-
-   def sort(self, empty, mine, opp):
-      mine_adjacent = set()
-      opp_adjacent = set()
-
-      rules = [(0, -1), (-1, 0), (-1, 1), (1, 0), (0, 1), (1, -1)]
-
-      for cell in empty:
-         x, y = cell
-
-         for xd, yd in rules:
-            neighbour = (x + xd, y + yd)
-
-            if neighbour in mine:
-               mine_adjacent.add(cell)
-
-            if neighbour in opp:
-               opp_adjacent.add(cell)
-
-      remainder = empty - mine_adjacent - opp_adjacent
-
-      return (
-         list(mine_adjacent)
-         + list(opp_adjacent - mine_adjacent)
-         + list(remainder)
-      )
 
 
    def minimax(self, mine, opp, B):
@@ -161,26 +152,22 @@ class HexAgent():
          state = (frozenset(mine), frozenset(opp), my_turn, depth) # Set State search for O(1)
          if state in self.cache:
             return self.cache[state]
+
+         fully_searched = True
+         empty = board - mine - opp
          
          if has_top_bottom_connection(mine, B): # Base Cases
             return 1
          if has_left_right_connection(opp, B):
             return -1
-         
          if depth >= self.D:
-            my_progress = connection_progress(mine, B)
-
-            flipped_opp = [(y, x) for x, y in opp]
-            opp_progress = connection_progress(flipped_opp, B)
-
-            return my_progress - opp_progress
-
-         fully_searched = True
-         empty = board - mine - opp
+            m = heuristic(mine,opp,empty,B)
+            o = heuristic(opp,mine,empty,B)
+            score = 0.99 * ((o-m) / (B * B))
+            return score
 
          if my_turn:
             score = -float("inf")
-            empty = self.sort(empty, mine, opp)
             for move in empty:
                new_mine = mine | {move}
                result = search(new_mine, opp, False, alpha, beta, depth + 1)
@@ -195,7 +182,6 @@ class HexAgent():
             
          else:
             score = float("inf")
-            empty = self.sort(empty, mine, opp)
             for move in empty:
                new_opp = opp | {move}
                result = search(mine, new_opp, True, alpha, beta, depth + 1)
@@ -212,9 +198,7 @@ class HexAgent():
             self.cache[state] = score # Update cache if whole state is present
          return score
 
-
       empty = board - mine - opp
-      empty = self.sort(empty, mine, opp)
       for move in empty:
          score = search(mine | {move}, opp, False, alpha, beta, 0)
          if score > best_score:
