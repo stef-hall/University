@@ -3,99 +3,161 @@ __organization__ = "COSC343/AIML402, University of Otago"
 __email__ = "Halst863@student.otago.ac.nz"
 
 import random
+from collections import deque
 
 agentName = "Agent C2"
 
-def has_top_bottom_connection(cells, B): # I borrowed your connection checking code
-   cells = set(cells)
-   paths = []
-
-   for x,y in list(cells):
-      if y==0:
-         paths.append((x,y))
-         cells.discard((x,y))
-
-   rules = [ (0,-1),(-1,0),(-1,1),(1,0),(0,1),(1,-1)]
-
-   i = 0
-   while i<len(paths):
-      x,y = paths[i]
-      for xd,yd in rules:
-         ncell = (x+xd,y+yd)
-         if ncell in cells:
-            if ncell[1] == B-1:
-               return True
-            paths.append(ncell)
-            cells.discard(ncell)
-
-      i += 1
-
-   return False
+from functools import lru_cache
 
 
-def has_left_right_connection(cells, N):
-   cells = [(b, a) for (a, b) in cells]
-   return has_top_bottom_connection(cells, N)
+@lru_cache(maxsize=None)
+def _hex_masks(B):
+    ALL = (1 << (B * B)) - 1
+
+    left_col = 0
+    right_col = 0
+    top_row = 0
+    bottom_row = 0
+
+    for y in range(B):
+        left_col |= 1 << (y * B)
+        right_col |= 1 << (y * B + B - 1)
+
+    for x in range(B):
+        top_row |= 1 << x
+        bottom_row |= 1 << ((B - 1) * B + x)
+
+    not_left = ALL ^ left_col
+    not_right = ALL ^ right_col
+
+    return ALL, left_col, right_col, top_row, bottom_row, not_left, not_right
+
+
+def _to_bits(cells, B):
+    bits = 0
+    for x, y in cells:
+        bits |= 1 << (y * B + x)
+    return bits
+
+
+def _expand(bits, cells, B, not_left, not_right, ALL):
+    return (
+        (bits >> B) |
+        ((bits << B) & ALL) |
+        ((bits & not_left) >> 1) |
+        ((bits & not_right) << 1) |
+        ((bits & not_right) >> (B - 1)) |
+        (((bits & not_left) << (B - 1)) & ALL)
+    ) & cells
+
+
+def has_top_bottom_connection(cells, B):
+    ALL, left, right, top, bottom, not_left, not_right = _hex_masks(B)
+
+    cells = _to_bits(cells, B)
+
+    connected = cells & top
+
+    while connected:
+        if connected & bottom:
+            return True
+
+        expanded = connected | _expand(
+            connected, cells, B, not_left, not_right, ALL
+        )
+
+        if expanded == connected:
+            return False
+
+        connected = expanded
+
+    return False
+
+
+def has_left_right_connection(cells, B):
+    ALL, left, right, top, bottom, not_left, not_right = _hex_masks(B)
+
+    cells = _to_bits(cells, B)
+
+    connected = cells & left
+
+    while connected:
+        if connected & right:
+            return True
+
+        expanded = connected | _expand(
+            connected, cells, B, not_left, not_right, ALL
+        )
+
+        if expanded == connected:
+            return False
+
+        connected = expanded
+
+    return False
 
 def rotate_board(cells):
-    return {(y, x) for x, y in cells}
+    cells = [(b, a) for (a, b) in cells]
+    return cells
 
 def heuristic(mine, opp, empty, B):
     rules = [ (0,-1),(-1,0),(-1,1),(1,0),(0,1),(1,-1)]
-    distance = {}
-    open_hexes = []
 
-    def neighbours_of(current_hex):
-        neighbours = {}
-        for direction in rules:
-            new_x = current_hex[0] + direction[0]
-            new_y = current_hex[1] + direction[1]
-            neighbour = (new_x, new_y)
+    queue = deque()
+    distance = {}
+
+    for x in range(B):
+        start = (x,0)
+        if start in mine:
+            distance[start] = 0
+            queue.appendleft(start)
+        elif start in empty:
+            distance[start] = 1
+            queue.append(start)
+
+    while queue:
+        current = queue.popleft()
+
+        if current[1] == B-1: # This is the win condition
+            return distance[current]
+
+        for diff in rules:
+            neighbour = (current[0] + diff[0], current[1] + diff[1])
+
             if neighbour in mine:
-                score = 0
+                cost = 0
             elif neighbour in empty:
-                score = 1
+                cost = 1
             else:
                 continue
 
-            neighbours[neighbour] = score
+            total_distance = distance[current] + cost
+            if (neighbour not in distance) or (total_distance < distance[neighbour]):
+                distance[neighbour] = total_distance
+                if cost == 0:
+                     queue.appendleft(neighbour)
+                else:
+                     queue.append(neighbour)
 
-        return neighbours
+    return (B * B)
 
-    def cheapest(open_hexes, distance):
-        cheapest_hex = open_hexes[0]
-        for hexagon in open_hexes:
-            if distance[hexagon] < distance[cheapest_hex]:
-                cheapest_hex = hexagon
+def sort(empty, mine, opp):
+    mine_adj = set()
+    opp_adj = set()
 
-        return cheapest_hex
+    rules = [ (0,-1),(-1,0),(-1,1),(1,0),(0,1),(1,-1)]
 
-    #Main Djikstras Algorthim
-    for i in range(B):
-        start_row = (i, 0)
-        if start_row in mine:
-            distance[start_row] = 0
-            open_hexes.append(start_row)
+    for hex in empty:
+        for diff in rules:
+            neighbour = (hex[0] + diff[0] , hex[1] + diff[1])
+            if neighbour in mine:
+                mine_adj.add(hex)
+            elif neighbour in opp:
+                opp_adj.add(hex)
 
-        elif start_row in empty:
-            distance[start_row] = 1
-            open_hexes.append(start_row)
+    leftover = empty - mine_adj - opp_adj
 
-    while open_hexes:
-        current = cheapest(open_hexes, distance)
-        open_hexes.remove(current)
-        if current[1] == B-1: #Reached the Oppossing wall
-            return distance[current]
-
-        neighbour_costs = neighbours_of(current)
-        for neighbour in neighbour_costs:
-            new_distance = distance[current] + neighbour_costs[neighbour]
-            if neighbour not in distance or new_distance < distance[neighbour]:
-                distance[neighbour] = new_distance
-                if neighbour not in open_hexes:
-                    open_hexes.append(neighbour)
-
-    return float("inf")
+    return (list(mine_adj) + list(opp_adj) + list(leftover))
 
 
 class HexAgent():
@@ -170,6 +232,7 @@ class HexAgent():
 
          if my_turn:
             score = -float("inf")
+            empty = sort(empty, mine, opp)
             for move in empty:
                new_mine = mine | {move}
                result = search(new_mine, opp, False, alpha, beta, depth + 1)
@@ -184,6 +247,7 @@ class HexAgent():
             
          else:
             score = float("inf")
+            empty = sort(empty, mine, opp)
             for move in empty:
                new_opp = opp | {move}
                result = search(mine, new_opp, True, alpha, beta, depth + 1)
@@ -201,6 +265,7 @@ class HexAgent():
          return score
 
       empty = board - mine - opp
+      empty = sort(empty, mine, opp)
       for move in empty:
          score = search(mine | {move}, opp, False, alpha, beta, 0)
          if score > best_score:
