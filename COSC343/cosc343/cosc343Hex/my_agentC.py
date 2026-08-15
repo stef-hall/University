@@ -5,7 +5,7 @@ __email__ = "Halst863@student.otago.ac.nz"
 import random
 from collections import deque
 
-agentName = "Agent C1"
+agentName = "Agent C"
 
 def has_top_bottom_connection(cells, B): # I borrowed your connection checking code
    cells = set(cells)
@@ -33,17 +33,12 @@ def has_top_bottom_connection(cells, B): # I borrowed your connection checking c
 
    return False
 
-
 def has_left_right_connection(cells, N):
    return has_top_bottom_connection(rotate_board(cells), N)
 
 def rotate_board(cells):
     cells = [(b, a) for (a, b) in cells]
     return cells
-
-
-
-
 
 
 class HexAgent():
