@@ -7,157 +7,43 @@ from collections import deque
 
 agentName = "Agent C2"
 
-from functools import lru_cache
+def has_top_bottom_connection(cells, B): # I borrowed your connection checking code
+   cells = set(cells)
+   paths = []
+
+   for x,y in list(cells):
+      if y==0:
+         paths.append((x,y))
+         cells.discard((x,y))
+
+   rules = [ (0,-1),(-1,0),(-1,1),(1,0),(0,1),(1,-1)]
+
+   i = 0
+   while i<len(paths):
+      x,y = paths[i]
+      for xd,yd in rules:
+         ncell = (x+xd,y+yd)
+         if ncell in cells:
+            if ncell[1] == B-1:
+               return True
+            paths.append(ncell)
+            cells.discard(ncell)
+
+      i += 1
+
+   return False
 
 
-@lru_cache(maxsize=None)
-def _hex_masks(B):
-    ALL = (1 << (B * B)) - 1
-
-    left_col = 0
-    right_col = 0
-    top_row = 0
-    bottom_row = 0
-
-    for y in range(B):
-        left_col |= 1 << (y * B)
-        right_col |= 1 << (y * B + B - 1)
-
-    for x in range(B):
-        top_row |= 1 << x
-        bottom_row |= 1 << ((B - 1) * B + x)
-
-    not_left = ALL ^ left_col
-    not_right = ALL ^ right_col
-
-    return ALL, left_col, right_col, top_row, bottom_row, not_left, not_right
-
-
-def _to_bits(cells, B):
-    bits = 0
-    for x, y in cells:
-        bits |= 1 << (y * B + x)
-    return bits
-
-
-def _expand(bits, cells, B, not_left, not_right, ALL):
-    return (
-        (bits >> B) |
-        ((bits << B) & ALL) |
-        ((bits & not_left) >> 1) |
-        ((bits & not_right) << 1) |
-        ((bits & not_right) >> (B - 1)) |
-        (((bits & not_left) << (B - 1)) & ALL)
-    ) & cells
-
-
-def has_top_bottom_connection(cells, B):
-    ALL, left, right, top, bottom, not_left, not_right = _hex_masks(B)
-
-    cells = _to_bits(cells, B)
-
-    connected = cells & top
-
-    while connected:
-        if connected & bottom:
-            return True
-
-        expanded = connected | _expand(
-            connected, cells, B, not_left, not_right, ALL
-        )
-
-        if expanded == connected:
-            return False
-
-        connected = expanded
-
-    return False
-
-
-def has_left_right_connection(cells, B):
-    ALL, left, right, top, bottom, not_left, not_right = _hex_masks(B)
-
-    cells = _to_bits(cells, B)
-
-    connected = cells & left
-
-    while connected:
-        if connected & right:
-            return True
-
-        expanded = connected | _expand(
-            connected, cells, B, not_left, not_right, ALL
-        )
-
-        if expanded == connected:
-            return False
-
-        connected = expanded
-
-    return False
+def has_left_right_connection(cells, N):
+   return has_top_bottom_connection(rotate_board(cells), N)
 
 def rotate_board(cells):
     cells = [(b, a) for (a, b) in cells]
     return cells
 
-def heuristic(mine, opp, empty, B):
-    rules = [ (0,-1),(-1,0),(-1,1),(1,0),(0,1),(1,-1)]
 
-    queue = deque()
-    distance = {}
 
-    for x in range(B):
-        start = (x,0)
-        if start in mine:
-            distance[start] = 0
-            queue.appendleft(start)
-        elif start in empty:
-            distance[start] = 1
-            queue.append(start)
 
-    while queue:
-        current = queue.popleft()
-
-        if current[1] == B-1: # This is the win condition
-            return distance[current]
-
-        for diff in rules:
-            neighbour = (current[0] + diff[0], current[1] + diff[1])
-
-            if neighbour in mine:
-                cost = 0
-            elif neighbour in empty:
-                cost = 1
-            else:
-                continue
-
-            total_distance = distance[current] + cost
-            if (neighbour not in distance) or (total_distance < distance[neighbour]):
-                distance[neighbour] = total_distance
-                if cost == 0:
-                     queue.appendleft(neighbour)
-                else:
-                     queue.append(neighbour)
-
-    return (B * B)
-
-def sort(empty, mine, opp):
-    mine_adj = set()
-    opp_adj = set()
-
-    rules = [ (0,-1),(-1,0),(-1,1),(1,0),(0,1),(1,-1)]
-
-    for hex in empty:
-        for diff in rules:
-            neighbour = (hex[0] + diff[0] , hex[1] + diff[1])
-            if neighbour in mine:
-                mine_adj.add(hex)
-            elif neighbour in opp:
-                opp_adj.add(hex)
-
-    leftover = empty - mine_adj - opp_adj
-
-    return (list(mine_adj) + list(opp_adj) + list(leftover))
 
 
 class HexAgent():
@@ -191,15 +77,71 @@ class HexAgent():
       
       """
       self.B = B
-      self.D = 4 
+      self.D = 4
       self.cache = {}
       self.board = set()
       self.cross_game_cache = 1 # 1=On, 0=Off
+      self.rules = [(0,-1),(-1,0),(-1,1),(1,0),(0,1),(1,-1)]
       
       for x in range(B): # Initalize board
          for y in range(B):
             self.board.add((x,y))
 
+   def heuristic(self, mine, opp, empty):
+      queue = deque()
+      distance = {}
+
+      for x in range(self.B):
+         start = (x,0)
+         if start in mine:
+               distance[start] = 0
+               queue.appendleft(start)
+         elif start in empty:
+               distance[start] = 1
+               queue.append(start)
+
+      while queue:
+         current = queue.popleft()
+
+         if current[1] == self.B-1: # This is the win condition
+               return distance[current]
+
+         for diff in self.rules:
+               neighbour = (current[0] + diff[0], current[1] + diff[1])
+
+               if neighbour in mine:
+                  cost = 0
+               elif neighbour in empty:
+                  cost = 1
+               else:
+                  continue
+
+               total_distance = distance[current] + cost
+               if (neighbour not in distance) or (total_distance < distance[neighbour]):
+                  distance[neighbour] = total_distance
+                  if cost == 0:
+                        queue.appendleft(neighbour)
+                  else:
+                        queue.append(neighbour)
+
+      return (self.B * self.B)
+
+
+   def sort(self, empty, mine, opp):
+      mine_adj = set()
+      opp_adj = set()
+
+      for hex in empty:
+         for diff in self.rules:
+               neighbour = (hex[0] + diff[0] , hex[1] + diff[1])
+               if neighbour in mine:
+                  mine_adj.add(hex)
+               elif neighbour in opp:
+                  opp_adj.add(hex)
+
+      leftover = empty - mine_adj - opp_adj
+
+      return (list(mine_adj) + list(opp_adj) + list(leftover))
 
 
    def minimax(self, mine, opp, B):
@@ -210,7 +152,6 @@ class HexAgent():
       best_score = -float("inf")
       alpha = -float("inf")
       beta = float("inf")
-      
 
       def search(mine, opp, my_turn, alpha, beta, depth): # Recursive min max search
          state = (frozenset(mine), frozenset(opp), my_turn, depth) # Set State search for O(1)
@@ -225,14 +166,14 @@ class HexAgent():
          if has_left_right_connection(opp, B):
             return -1
          if depth >= self.D:
-            m = heuristic(mine,opp,empty,B)
-            o = heuristic(rotate_board(opp),rotate_board(mine),rotate_board(empty),B)
+            m = self.heuristic(mine,opp,empty)
+            o = self.heuristic(rotate_board(opp),rotate_board(mine),rotate_board(empty))
             score = 0.99 * ((o-m) / (B * B))
             return score
 
          if my_turn:
             score = -float("inf")
-            empty = sort(empty, mine, opp)
+            empty = self.sort(empty, mine, opp)
             for move in empty:
                new_mine = mine | {move}
                result = search(new_mine, opp, False, alpha, beta, depth + 1)
@@ -247,7 +188,7 @@ class HexAgent():
             
          else:
             score = float("inf")
-            empty = sort(empty, mine, opp)
+            empty = self.sort(empty, mine, opp)
             for move in empty:
                new_opp = opp | {move}
                result = search(mine, new_opp, True, alpha, beta, depth + 1)
@@ -262,10 +203,12 @@ class HexAgent():
 
          if fully_searched:
             self.cache[state] = score # Update cache if whole state is present
+
          return score
+      
 
       empty = board - mine - opp
-      empty = sort(empty, mine, opp)
+      empty = self.sort(empty, mine, opp)
       for move in empty:
          score = search(mine | {move}, opp, False, alpha, beta, 0)
          if score > best_score:
@@ -294,11 +237,10 @@ class HexAgent():
       myHexes = percepts[0]
       oppHexes = percepts[1]
 
-      # Per game cache reset, determined by
+      # Per game cache reset, determined by "cross_game_cache"
       if self.cross_game_cache == 0:
          if len(myHexes) == 0:
             self.cache = {}
-
       
       # Make a minimax optimized move
       move = self.minimax(myHexes, oppHexes, self.B)

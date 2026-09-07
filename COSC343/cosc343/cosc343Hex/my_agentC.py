@@ -77,7 +77,7 @@ class HexAgent():
       
       """
       self.B = B
-      self.D = 4 
+      self.D = 4
       self.cache = {}
       self.board = set()
       self.cross_game_cache = 1 # 1=On, 0=Off
