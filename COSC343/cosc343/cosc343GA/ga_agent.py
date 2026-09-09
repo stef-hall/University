@@ -80,11 +80,58 @@ def make_baby(mum, dad, mutate): # lmao
     biases = np.empty(6)
 
     for action in range(6): # Crossover
+        action_weights = np.empty(215)
+        action_bias = np.empty(1)
+
+        
+        x, y = 0,3 # Self Position
+        if random.randint(0,1) == 0:
+            action_weights[x:y] = mum.weights[action, x:y]
+        else: 
+            action_weights[x:y] = dad.weights[action, x:y]
+
+        x, y = 3,12 # Opponents
+        if random.randint(0,1) == 0:
+            action_weights[x:y] = mum.weights[action, x:y]
+        else: 
+            action_weights[x:y] = dad.weights[action, x:y]
+
+        x, y = 12,112 # Packages Grid
+        if random.randint(0,1) == 0:
+            action_weights[x:y] = mum.weights[action, x:y]
+        else: 
+            action_weights[x:y] = dad.weights[action, x:y]
+
+        x, y = 112,212 # Dispatch Grid
+        if random.randint(0,1) == 0:
+            action_weights[x:y] = mum.weights[action, x:y]
+        else: 
+            action_weights[x:y] = dad.weights[action, x:y]
+
+        x, y = 212,213 #Crowding
+        if random.randint(0,1) == 0:
+            action_weights[x:y] = mum.weights[action, x:y]
+        else: 
+            action_weights[x:y] = dad.weights[action, x:y]
+
+        x, y = 213,214 #On-Package
+        if random.randint(0,1) == 0:
+            action_weights[x:y] = mum.weights[action, x:y]
+        else: 
+            action_weights[x:y] = dad.weights[action, x:y]
+
+        x, y = 214,215 #On-Dispatch
+        if random.randint(0,1) == 0:
+            action_weights[x:y] = mum.weights[action, x:y]
+        else: 
+            action_weights[x:y] = dad.weights[action, x:y]
+
+
+
+        # Biases
         if random.randint(0, 1) == 0:
-            action_weights = mum.weights[action].copy()
             action_bias = mum.biases[action]
         else:
-            action_weights = dad.weights[action].copy()
             action_bias = dad.biases[action]
 
         for feature in range(215): # Weight mutation
@@ -108,7 +155,7 @@ def newGeneration(population, fitnesses, mutation_rate):
     static_fitnesses = fitnesses.copy()
     parents = []
     next_generation = []
-    parents_cutoff = 2 # Fraction of parents used for next generation
+    parents_cutoff = 3 # Fraction of parents used for next generation
     mutate =  mutation_rate # Chance to mutate
     
     next_generation.append(population[fitnesses.index(max(fitnesses))]) # Keep a single elite in the next gen
