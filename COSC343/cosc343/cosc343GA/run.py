@@ -12,21 +12,14 @@ bot_b = GAAgent()
 render = False
 
 bots = []
-for i in range(60):
+for i in range(50):
     bot = GAAgent()
     bots.append(bot)
 
-for i in range(20):
-    fitnesses = evalFitness(bots, greedy_agent, seeds=[1,2])
-    print(f"[{i}] Round results:", fitnesses)
-    bots = newGeneration(bots, fitnesses, 0.01)
-
-frozen_opponent = bots[0]
 for i in range(200):
-    fitnesses = evalFitness(bots, frozen_opponent, seeds=[1,2])
-    print(f"[{i}] Round results:", fitnesses)
-    bots = newGeneration(bots, fitnesses, 0.01)
-
+    fitnesses = evalFitness(bots, greedy_agent, seeds=[1,2])
+    print(f"[{i}] Average Fitness:", sum(fitnesses) / len(fitnesses))
+    bots = newGeneration(bots, fitnesses, 0.6)
 
 
 bot_a = greedy_agent

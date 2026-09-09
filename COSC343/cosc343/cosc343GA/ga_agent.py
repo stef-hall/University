@@ -26,7 +26,7 @@ def evalFitness(population, opponent, seeds):
     fitnesses = []
 
     for agent in population:
-        deliveries, pickups, = 0,0
+        deliveries, pickups, steps_right_direction = 0,0,0
 
         for seed in seeds:
             env = WarehouseEnv(seed=seed)
@@ -38,8 +38,10 @@ def evalFitness(population, opponent, seeds):
                 actions = {0: agent(states[0]), 1: opponent(states[1])}
                 states, _, done, info = env.step(actions)
 
+                # Did it pick something up?
                 if not was_carrying and states[0]["carrying"]:
                     pickups += 1
+                
 
             deliveries += info["scores"][0]
 
@@ -51,6 +53,27 @@ def evalFitness(population, opponent, seeds):
         fitnesses.append(fitness)
 
     return fitnesses
+
+def random_parent(parents):
+    parent = parents[random.randint(0,len(parents)-1)][0]
+    return parent
+
+def weighted_parent(parents):
+    fitness_values = []
+    weights = []
+    
+    for parent in parents:
+        fitness_values.append(parent[1])
+
+    lowest_fitness = min(fitness_values)
+    
+    for parent in parents:
+        weight = parent[1] - lowest_fitness + 1
+        weights.append(weight)
+
+    parent = random.choices(parents, weights=weights)[0][0]
+
+    return parent
 
 def make_baby(mum, dad, mutate): # lmao
     weights = np.empty((6, 215))
@@ -79,34 +102,13 @@ def make_baby(mum, dad, mutate): # lmao
     child = GAAgent(model)
     return child
 
-def random_parent(parents):
-    parent = parents[random.randint(0,len(parents)-1)][0]
-    return parent
-
-def weighted_parent(parents):
-    fitness_values = []
-    weights = []
-    
-    for parent in parents:
-        fitness_values.append(parent[1])
-
-    lowest_fitness = min(fitness_values)
-    
-    for parent in parents:
-        weight = parent[1] - lowest_fitness + 1
-        weights.append(weight)
-
-    parent = random.choices(parents, weights=weights)[0][0]
-
-    return parent
-
 
 def newGeneration(population, fitnesses, mutation_rate):
     static_poulation = population.copy()
     static_fitnesses = fitnesses.copy()
     parents = []
     next_generation = []
-    parents_cutoff = 2 # Top fraction of parents used for next generation
+    parents_cutoff = 2 # Fraction of parents used for next generation
     mutate =  mutation_rate # Chance to mutate
     
     next_generation.append(population[fitnesses.index(max(fitnesses))]) # Keep a single elite in the next gen
