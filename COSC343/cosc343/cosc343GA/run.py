@@ -6,6 +6,8 @@ from greedy_agent import greedy_agent
 from smart_custom_agent import smart_custom_agent
 from ga_agent import GAAgent
 from ga_agent import evalFitness, newGeneration
+from designed_agent import model as modelX
+
 
 bot_a = greedy_agent 
 bot_b = GAAgent()
