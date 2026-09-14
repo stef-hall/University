@@ -190,7 +190,7 @@ def newGeneration(population, fitnesses, mutation_rate):
     static_fitnesses = fitnesses.copy()
     parents = []
     next_generation = []
-    parents_cutoff = 2 # Fraction of parents used for next generation
+    parents_cutoff = 3 # Fraction of parents used for next generation
     mutate =  mutation_rate # Chance to mutate
     
     next_generation.append(population[fitnesses.index(max(fitnesses))]) # Keep a single elite in the next gen

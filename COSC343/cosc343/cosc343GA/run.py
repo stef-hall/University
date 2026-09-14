@@ -6,16 +6,21 @@ from greedy_agent import greedy_agent
 from smart_custom_agent import smart_custom_agent
 from ga_agent import GAAgent
 from ga_agent import evalFitness, newGeneration
-from designed_agent import model as modelX
-
 
 bot_a = greedy_agent 
-bot_b = GAAgent()
+bot_b = smart_custom_agent
 
 render = False
 
+#for i in range(10):
+#    render = False
+#    seed = random.randint(1,100)
+#    score_a, score_b = run_episode(bot_a, bot_b, seed=seed, render=render)
+#    print(seed,",",score_a,",",score_b)
+#quit()
+
 bots = []
-for i in range(20):
+for i in range(130):
     bot = GAAgent()
     bots.append(bot)
 
@@ -32,7 +37,7 @@ for i in range(200):
 bot_a = greedy_agent
 bot_b = bots[0]
 for i in range(5):
-    render = True
+    render = False
     seed = random.randint(1,100)
     score_a, score_b = run_episode(bot_a, bot_b, seed=seed, render=render)
     print(f"Score: {score_a}-{score_b} | Seed: {seed}")
