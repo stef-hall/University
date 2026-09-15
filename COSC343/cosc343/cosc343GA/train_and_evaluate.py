@@ -8,20 +8,32 @@ from smart_custom_agent import smart_custom_agent
 from ga_agent import GAAgent
 from ga_agent import evalFitness, newGeneration
 
-initial_population = 100
-generations = 500
+
+data = np.load("best_ga_agent.npz")
+
+model = {
+    "weights": data["weights"],
+    "biases": data["biases"]
+}
+
+Best_Descendant = GAAgent(model)
+
+
+
+initial_population = 200
+generations = 200
 mutation_rate = 0.04
 save_best = 1
 
 bots = []
 for i in range(initial_population):
-    bot = GAAgent()
+    bot = GAAgent(model)
     bots.append(bot)
 
 print("Pre-training evaluation:")
 wins, draws, losses = 0, 0, 0
 for bot in bots:
-    score_a, score_b = run_episode(bot, greedy_agent, seed=random.randint(1, 1000), render=False)
+    score_a, score_b = run_episode(bot, Best_Descendant, seed=random.randint(1, 1000), render=False)
     if score_a > score_b:
         wins += 1
     elif score_a == score_b:
@@ -55,3 +67,6 @@ print("Results agaisnt Smart Custom Agent:")
 for seed in range(10):
     score_a, score_b = run_episode(Best_Descendant, smart_custom_agent, seed=seed, render=False)
     print(f"Score: {score_a}-{score_b} | Seed: {seed}")
+
+
+input("Press Enter to close...")
