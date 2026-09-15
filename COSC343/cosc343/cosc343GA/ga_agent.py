@@ -102,7 +102,7 @@ def evalFitness(population, opponent, seeds):
 
         fitness = (
             2 * pickups +
-            20 * deliveries +
+            50 * deliveries +
             0.1 * steps_to_package +
             0.15 * steps_to_dispatch -
             0.1 * invalid_actions
