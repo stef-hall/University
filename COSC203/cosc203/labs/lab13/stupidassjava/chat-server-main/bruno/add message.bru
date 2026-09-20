@@ -1,0 +1,19 @@
+meta {
+  name: add message
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/api/messages
+  body: json
+  auth: none
+}
+
+body:json {
+    {
+      "username": "Boris",
+      "message": "Hello",
+      "time": "2026-08-29T15:26:20.483233009"
+    }
+}

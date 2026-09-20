@@ -1,0 +1,189 @@
+/* css variables */
+:root {
+	 --spacing: 20px;
+	 --rounded-corner: 12px;
+	 --drop-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+	 --theme-primary: #1a4c87;
+	 --theme-secondary: #eec217;
+}
+
+/* set some defaults */
+* {
+	 font-family: Arial, Helvetica, sans-serif;
+	 margin: 0;
+	 padding: 0;
+}
+
+/* main grid layout */
+body {
+	 height: 100vh;
+	 display: grid;
+	 grid-template-rows: min-content 1fr min-content;
+	 grid-template-columns: 1fr;
+	 justify-content: center;
+	 background: #E0E0E0;
+}
+
+header {
+	 background: var(--theme-primary);
+	 text-align: center;
+	 padding: 8px;
+	 color: white;
+	 font-size: 18pt;
+	 font-weight: bold;
+	 border-bottom: 10px solid var(--theme-secondary);
+}
+
+/* form style */
+#message-form {
+	 background: white;
+	 position: relative;
+}
+
+#message-form>#message-button {
+	 display: flex;
+	 align-items: center;	
+	 border-radius: var(--rounded-corner);
+	 padding: 16px;
+	 border: none;
+	 background: var(--theme-primary);
+	 color: white;
+	 position: absolute;
+	 top: 50%;
+	 transform: translateY(-50%) translateX(50%);
+	 right: 35px;
+	 box-shadow: none;
+	 transition: padding 0.2s;
+}
+
+#message-form>#message-button:hover {
+	 cursor: pointer;
+	 padding: 18px;
+	 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+	 transition: padding 0.2s;
+}
+
+#message-form>input {
+	 height: 70px;
+	 width: 100%;
+	 box-sizing: border-box;
+	 font-size: 14pt;
+	 border: none;
+	 padding: 16px;
+}
+
+/* style the messages */
+#chat-log-container {
+	 display: flex;
+	 flex-direction: column;
+	 justify-content: flex-end;
+	 padding: var(--spacing);
+	 box-shadow: inset var(--drop-shadow);
+	 overflow: auto;
+}
+
+.message-self,
+.message-other {
+	 max-width: 80%;
+	 margin: var(--spacing) 0;
+	 padding: var(--rounded-corner);
+	 border-radius: var(--rounded-corner);
+	 width: fit-content;
+	 position: relative;
+	 filter: drop-shadow(var(--drop-shadow));
+	 background: white;
+}
+
+.message-self {
+	 color: white;
+	 background: var(--theme-primary);
+	 border-bottom-right-radius: 0;
+	 margin-left: auto;
+}
+
+.message-other {
+	 color: var(--theme-primary);
+	 background: white;
+	 border-bottom-left-radius: 0;
+	 margin-right: auto;
+}
+
+
+/* message timestamp */
+.message-self>p.timestamp,
+.message-other>p.timestamp {
+	 position: absolute;
+	 font-size: 0.6em;
+	 color: #888;
+	 bottom: -2em;
+	 width: max-content;
+}
+
+.message-self>p.timestamp {
+	 right: 20px;
+}
+
+.message-other>p.timestamp {
+	 left: 20px;
+}
+
+/* triangle for the speech bubble shape (border hack) */
+.message-self:after,
+.message-other:after {
+	 content: '';
+	 position: absolute;
+	 bottom: 0;
+	 width: 0;
+	 height: 0;
+	 border: 16px solid transparent;
+	 border-bottom: 0;
+	 margin-bottom: -16px;
+}
+
+.message-self:after {
+	 border-top-color: var(--theme-primary);
+	 border-right: 0;
+	 right: 0;
+}
+
+.message-other:after {
+	 border-top-color: white;
+	 border-left: 0;
+	 left: 0;
+}
+
+#message-text, #message-button {
+	 min-height: 2.5em;
+	 max-height: 2.5em;
+}
+
+#usernameDialog {
+	margin: auto;
+	border: solid;
+	border-radius: 20px;
+	padding: 20px;
+	box-shadow: 5px 5px 10px grey;
+}
+
+/* layout the form as a single column grid */
+#usernameDialog form {
+	display: grid;
+	grid-template-columns: 1fr;
+	height: 100%;
+}
+
+/* space the form elements out a bit */
+#usernameDialog form * {
+	margin: 3px;
+	padding: 3px;
+}
+
+.message-self .username {
+	font-size:10px;
+	color:rgb(30, 194, 244);
+}
+
+.message-other .username {
+	font-size:10px;
+	color:black;
+}

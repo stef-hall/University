@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World</title>
+</head>
+<body>
+  <header><p>Page header</p></header>
+  <nav aria-label="Page navigation"><a href="#intro">Introduction</a> · <a href="#lists">Lists</a> · <a href="#form">Form</a></nav>
+  <main>
+    <h1 id="heading1">Hello World 😃</h1>
+    <section id="intro">
+      <h2>Introduction</h2>
+      <p>This is a <em>simple</em> HTML page with <strong>semantic structure</strong>.</p>
+      <p>HTML describes what a document contains. <a href="https://developer.mozilla.org/en-US/docs/Web/HTML">Learn more about HTML</a>.</p>
+      <p><a href="#heading1">Jump back to the heading</a> or visit <a href="https://www.google.com">Google</a>.</p>
+    </section>
+    <section id="lists">
+      <h2>Lists and data</h2>
+      <ol><li>Learn HTML</li><li>Validate the page</li><li>Build something useful</li></ol>
+      <ul><li>Headings</li><li>Paragraphs</li><li>Links</li></ul>
+      <table>
+        <thead><tr><th>Element</th><th>Purpose</th></tr></thead>
+        <tbody><tr><td>p</td><td>Paragraph</td></tr><tr><td>a</td><td>Link</td></tr></tbody>
+      </table>
+    </section>
+    <section id="form">
+      <h2>Account details</h2>
+      <form action="sign-in" method="post">
+        <fieldset><legend>Sign in</legend>
+          <label for="username">Username:</label><input id="username" name="username" type="text">
+          <label for="password">Password:</label><input id="password" name="password" type="password">
+          <button type="submit">Sign In</button>
+        </fieldset>
+      </form>
+    </section>
+  </main>
+  <footer><p>Page footer</p></footer>
+</body>
+</html>

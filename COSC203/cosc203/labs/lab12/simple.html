@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        function clickHandler() {
+            const input = document.getElementById("myInput");
+            const heading = document.getElementById("myHeading");
+            heading.textContent = input.value;
+        }
+    </script>
+</head>
+<body>
+    <form>
+        <label>Enter something:</label> <input id="myInput">
+        <button type="button" onclick="clickHandler()">Click Me</button>
+    </form>
+
+    <h1 id="myHeading"></h1>
+</body>
+</html>

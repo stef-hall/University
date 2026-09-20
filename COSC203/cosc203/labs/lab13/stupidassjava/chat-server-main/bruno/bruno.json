@@ -1,0 +1,13 @@
+{
+  "version": "1",
+  "name": "Lab 13 Chat Server",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ],
+  "presets": {
+    "requestType": "http",
+    "requestUrl": "{{baseurl}}"
+  }
+}

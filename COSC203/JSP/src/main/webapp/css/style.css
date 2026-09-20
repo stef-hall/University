@@ -1,0 +1,115 @@
+:root {
+    font-family: Arial, sans-serif;
+    color: #17202a;
+    background: #edf3f7;
+}
+
+main {
+    background: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 0.5rem 1.5rem rgb(23 32 42 / 12%);
+}
+
+.site-nav {
+    background: #1c4966;
+    box-shadow: 0 0.2rem 0.5rem rgb(23 32 42 / 18%);
+}
+
+.site-nav a {
+    display: inline-block;
+    padding: 0.45rem 0.7rem;
+    color: #ffffff;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.site-nav a:hover {
+    background: #124b65;
+    border-radius: 0.3rem;
+}
+
+.site-nav .brand {
+    font-size: 1.1rem;
+}
+
+h1 {
+    color: #1c4966;
+    margin-top: 0;
+}
+
+.intro,
+.empty-state {
+    color: #53616d;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 0.65rem;
+    border: 1px solid #aab7c2;
+    border-radius: 0.3rem;
+    font: inherit;
+}
+
+textarea {
+    resize: vertical;
+}
+
+input[readonly] {
+    background: #e8eef2;
+    color: #53616d;
+}
+
+.field-error {
+    margin: 0.35rem 0 0;
+    color: #b42318;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+button,
+.nav,
+.filter {
+    display: inline-block;
+    padding: 0.65rem 1rem;
+    border: 1px solid #1c6d8f;
+    border-radius: 0.3rem;
+    background: #1c6d8f;
+    color: #ffffff;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+button:hover,
+.nav:hover,
+.filter:hover,
+.filter.selected {
+    background: #124b65;
+}
+
+.secondary,
+.filter {
+    background: #ffffff;
+    color: #1c6d8f;
+}
+
+.secondary:hover,
+.filter:hover,
+.filter.selected {
+    color: #ffffff;
+}
+
+th {
+    background: #1c4966;
+    color: #ffffff;
+}
+
+td {
+    border-bottom: 1px solid #d8e1e7;
+}
+
+tbody tr:nth-child(even) {
+    background: #f5f9fb;
+}

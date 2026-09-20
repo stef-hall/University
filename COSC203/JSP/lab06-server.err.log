@@ -1,0 +1,19 @@
+2026-08-06 13:35:15.928:INFO :oejs.Server:main: jetty-12.1.11; built: 2026-07-02T20:57:42.640Z; git: 6c1ced3f077bc633716c54758a743b09b21328e8; jvm 25.0.1+8-LTS-27
+2026-08-06 13:35:18.255:INFO :oejs.DefaultSessionIdManager:main: Session workerName=node0
+2026-08-06 13:35:18.396:INFO :oejsh.ContextHandler:main: Started oeje8n.ContextHandler$CoreContextHandler@15f47664{/students-system,/students-system,b=file:///C:/Users/stefa/OneDrive/Documents/COSC203/JSP/build/deploy/,a=AVAILABLE,h=oeje8n.ContextHandler$CoreContextHandler$CoreToNestedHandler@471a9022{STARTED}}
+2026-08-06 13:35:18.494:INFO :oejs.AbstractConnector:main: Started oejs.ServerConnector@2eea1191{HTTP/1.1, (http/1.1)}{localhost:8084}
+2026-08-06 13:35:18.503:INFO :oejs.Server:main: Started oejs.Server@10d307f1{STARTING}[12.1.11,sto=0] @2580ms
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':run' (registered by plugin 'org.gradle.application').
+> Process 'command 'C:\Program Files\Java\jdk-25\bin\java.exe'' finished with non-zero exit value -1 (NTSTATUS 0xFFFFFFFF)
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 5m 9s

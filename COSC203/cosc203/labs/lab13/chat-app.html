@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://cdn.jsdelivr.net/npm/axios@1.19.0/dist/axios.min.js"></script>
+	<title>Polly Chat</title>
+	<link preload rel="stylesheet" href="chat-app.css">
+    <script defer src="chat-app.js"></script>
+</head>
+
+<body>
+	<header>Polly Chat</header>
+
+	<dialog id="usernameDialog">
+		<form onsubmit="setUsername(event)">
+			<p><strong>What is your username?</strong></p> 
+			<input id="username" type="text" placeholder="Username..." required autofocus>
+			<button type="submit" id="usernameButton">OK</button>
+		</form>
+	</dialog>
+
+	<main id="chat-log-container">
+
+		<div class="message-self">
+			<p>Hello World 😊</p>
+		</div>
+
+		<div class="message-other">
+			<p>Hello Polly 😀</p>
+		</div>
+
+	</main>
+
+	<form id="message-form" onsubmit="sendMessage(event)">
+		<input id="message-text" type="text" autocomplete="off" placeholder="message...">
+		<button id="message-button" type="submit">Send</button>
+	</form>
+
+</body>
+
+</html>
