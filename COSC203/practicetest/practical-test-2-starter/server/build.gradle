@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories { mavenCentral() }
+
+dependencies {
+    implementation 'io.jooby:jooby-netty:4.5.3'
+    implementation 'io.jooby:jooby-gson:4.5.3'
+    implementation 'org.jdbi:jdbi3-core:3.49.6'
+    implementation 'org.jdbi:jdbi3-sqlobject:3.49.6'
+    implementation 'com.h2database:h2:2.3.232'
+}
+
+application {
+    mainClass = 'web.Server'
+}
