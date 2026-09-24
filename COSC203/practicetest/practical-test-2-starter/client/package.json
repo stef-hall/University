@@ -3,12 +3,14 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "scripts": { "dev": "vite" },
+  "scripts": {
+    "dev": "vite"
+  },
   "dependencies": {
-    "@vitejs/plugin-vue": "latest",
+    "@vitejs/plugin-vue": "^6.0.9",
     "axios": "latest",
     "vite": "latest",
-    "vue": "latest"
-  },
-  "devDependencies": {}
+    "vue": "latest",
+    "vue-router": "^5.3.1"
+  }
 }

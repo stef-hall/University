@@ -1,0 +1,34 @@
+info:
+  name: Create Student
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:8085/api/students
+  body:
+    type: json
+    data: |-
+      {
+          "id": 1169,
+          "name": "Stef",
+          "address": "123 Some Street",
+          "phoneNumber": "555 1234",
+          "major": "PHYS"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+    - expression: res.body
+      operator: isEmpty
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

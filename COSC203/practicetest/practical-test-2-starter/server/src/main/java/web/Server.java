@@ -2,9 +2,13 @@ package web;
 
 import dao.JdbiFactory;
 import dao.JdbiStudentDAO;
+import domain.Student;
 import io.jooby.Jooby;
+import static io.jooby.Jooby.runApp;
+import io.jooby.ServerOptions;
 import io.jooby.gson.GsonModule;
 import io.jooby.handler.CorsHandler;
+import io.jooby.netty.NettyServer;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 
@@ -27,11 +31,16 @@ public class Server extends Jooby {
         ));
 
         JdbiStudentDAO dao = jdbi.onDemand(JdbiStudentDAO.class);
-
+        dao.save( new Student(1111, "MikeD", "Swag"));
+        dao.save( new Student(1112, "MCA", "Finking"));
+        dao.save( new Student(1113, "AdamH", "Brassmonkey"));
+        
         install(() -> new StudentModule(dao));
     }
 
     public static void main(String[] args) {
-        runApp(args, Server::new);
+        System.out.println("bruh");
+        ServerOptions options = new ServerOptions().setPort(8085);
+        runApp(args, new NettyServer(options), Server::new);
     }
 }
