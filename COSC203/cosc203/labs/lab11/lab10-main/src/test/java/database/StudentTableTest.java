@@ -33,7 +33,7 @@ public class StudentTableTest {
     public void setUp() {
         DatabaseConnectionSource dataSource = DatabaseConnectionSources
                 .newDatabaseConnectionSource(
-                        "jdbc:h2:tcp://localhost/students",
+                        "jdbc:h2:tcp://localhost/~/localhost/students",
                         new MultiUseUserCredentials("sa", "sa")
                 );
 

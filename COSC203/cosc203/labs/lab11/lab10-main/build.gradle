@@ -35,6 +35,7 @@ dependencies {
     testImplementation group: "com.squareup.retrofit2", name: "converter-gson", version: "3.0.0";
 
     testImplementation group: "us.fatehi", name: "schemacrawler", version: "17.12.2";
+    implementation 'com.h2database:h2:2.3.232'
 }
 
 test {
