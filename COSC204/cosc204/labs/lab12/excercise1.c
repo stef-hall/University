@@ -2,7 +2,7 @@
 
 void fun(int a, char b)
 {
-printf("Value of a is %d | C is gay: %c\n", a, b);
+printf("Value of a is %d | b is: %c\n", a, b);
 }
 
 int main()
